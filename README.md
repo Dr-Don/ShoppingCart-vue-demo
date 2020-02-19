@@ -1,6 +1,7 @@
 # shopping-cart-demo
 
-> A Vue.js project
+> vue购物车demo
+> 参考https://www.cnblogs.com/woshidouzia/p/9284200.html
 
 ## Build Setup
 
