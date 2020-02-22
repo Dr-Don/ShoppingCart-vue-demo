@@ -20,10 +20,10 @@
                      class="disN">
               <b></b>
             </label>
-            <div>
+            <div class="shop-title">
               <div>
-                <img src="../../static/images/shopitem.png" style="height: 15px; margin-top: 7px">
-                <span class="name">{{item.shopName}}</span>
+                <img src="../../static/images/shopitem.png" style="height: 15px; margin-bottom: 3px">
+                <span class="name" >{{item.shopName}}</span>
               </div>
               <span>
                 <img src="../../static/images/shopName.png" style="height: 25px;margin-top: 3px;margin-left: 10px">
@@ -37,17 +37,17 @@
                      :price="goods.price"
                      :num="goods.number" :dataId="item.shopId"
                      :value="goods.detailId"
-                     @click="goodsCkeck($event,item.detailLists,cartShops,item.productShopId)"
+                     @click="goodsCheck($event,item.detailLists,cartShops,item.productShopId)"
                      class="disN">
               <b></b>
             </label>
             <div class="middle">
-              <img src="../../static/images/good.png">
+              <img src="../../static/images/good.png" id="good-pic">
               <div>
                 <p class="good-name">{{goods.name}}</p>
                 <p class="good-type">{{goods.type}}</p>
                 <p calss="tab">
-                  <img src="../../static/images/goodDe.png">
+                  <img src="../../static/images/goodDe.png" id="tab">
                 </p>
               </div>
             </div>
@@ -55,10 +55,9 @@
               <p class="price"><b>￥{{goods.price}}</b></p>
               <p class="num">X{{goods.number}}</p>
               <p class="caculate">
-                <span class="mark" @click="numDecrease(goods.number)"></span>
+                <span class="mark" @click="numDecrease(goods.number)" id="decrease">-</span>
                 <span class="beeforCacul">{{goods.number}}</span>
-                <span class="cacul" :num="goods.cartDetailId">{{goods.number}}</span>
-                <span class="mark" @click="numAdd(goods.number)"></span>
+                <span class="mark" @click="numAdd(goods.number)" id="add">+</span>
               </p>
             </div>
           </div>
@@ -66,18 +65,18 @@
         <div class="edit" v-if="cartStatus === 'edit'">
           <label>
             <input type="checkbox" name="allRadio" class="disN" @click="allCheck($event)">
-            <b></b>
-            <span>全选</span>
+            <span class="select-all">全选</span>
           </label>
           <span class="delet">删除(3)</span>
         </div>
         <div class="gotopay" v-if="cartStatus === 'account'">
           <label>
             <input type="checkbox" name="allRadio" class="disN" @click="allCheck($event)">
-            <b></b>
-            <span class="marginR40">全选</span>
-            <span>合计：</span>
-            <span class="sum">￥{{sumPrice.toFixed(2)}}</span>
+            <span class="select-all">全选</span>
+            <div class="pay">
+              <span>合计：</span>
+              <span class="sum">￥<b>{{sumPrice.toFixed(2)}}</b></span>
+            </div>
           </label>
           <span class="delet" @click="cauSum">结算({{totalNumber}})</span>
         </div>
@@ -90,7 +89,7 @@ export default {
   name: 'ShoppingCart',
   data () {
     return {
-        cartStatus:"account",  //购物车状态，account结算，edit删除编辑状态
+        cartStatus:'account',  //购物车状态，account结算，edit删除编辑状态
         cartShops: [
             {shopId:0,shopName:"店铺1",detailLists:[
                     {goodsIndex:0,price:20,number:1,detailId:0,name:"商品1",type:"颜色分类：黑"},
@@ -107,20 +106,58 @@ export default {
     }
   },
     methods:{
+        //商品选择
+        goodsCheck(event,goodsList,shopList,shopId){
+          var input = document.getElementsByTagName('input')
+          if(event.currentTarget.checked){
+            this.goodsList.push(String(event.currentTarget.value))
+            //商品全选，店铺选中
+            var newArr = this.goodsList
+            var tt = goodsList.every(function(itemValue){
+              return (newArr.indexOf(String(itemValue.detailId)))
+            })
+            if(tt){
+              for(var i=0;i<input.length;i++){
+                if(input[i].value == shopId){
+                  input[i].checked = true
+                }
+              }
+              this.shopList.push(String(shopId))
+              if(this.shopList,length === shopList.length){
+                for(var i=0;i<input.length;i++){
+                  if(input[i].name == 'allRadio'){
+                    input[i].checked = true
+                  }
+                }
+              }
+            }
+          }
+          else{
+            this.goodsList.splice(this.goodsList.indexOf(event.currentTarget.value),1)
+            for(var i=0;i<input.length;i++){
+              if(input[i].value == shopId){
+                if(input[i].checked){
+                  input[i].checked = false
+                  this.shopList.splice(this.shopList.indexOf(String(shopId)),1)
+                }
+              }
+              if(input[i].name == 'allRadio'){
+                input[i].checked = false
+              }
+            }
+          }
+          //计算总价和数量
+          this.caculate()
+        },
         //店铺选择
         shopCheck(event,shopList){
             //店铺选中则对应商品全选，否则全不选
             var input = document.getElementsByTagName('input')
             if(event.currentTarget.checked){
-                //店铺列表+，店铺checked,店铺内商品全checked，商品列表++
                 this.shopList.push(String(event.currentTarget.value));
-                //店铺内商品全checked
                 for(var i = 0;i<input.length;i++){
                     if(input[i].getAttribute('dataId') == event.currentTarget.value){
-                        //将没有选中的checked,并加入列表，去重
                         if(!input[i].checked){
-                            input[i].checked = true;
-                            //商品列表++
                             this.goodsList.push(String(input[i].value))
                         }
                     }
@@ -140,10 +177,8 @@ export default {
                 for(var i = 0;i<input.length;i++){
                     if(input[i].getAttribute('dataId') == event.currentTarget.value){
                         input[i].checked = false;
-                        //商品列表--
                         this.goodsList.splice(this.goodsList.indexOf(input[i].value),1);
                     }
-                    //任意一个不选，全选取消
                     if(input[i].name == 'allRadio'){
                         input[i].checked = false;
                     }
@@ -151,6 +186,97 @@ export default {
             }
             //计算总价和数量
             this.caculate();
+        },
+        //全选
+        allCheck(event){
+          var input = document.getElementsByTagName('input')
+            if(event.currentTarget.checked){
+                //全选checked,所有店铺checked
+                for(var i = 0;i<input.length;i++){
+                    if(!input[i].checked){
+                        input[i].checked = true;
+                        if(input[i].name == 'shopRadio'){
+                            this.shopList.push(String(input[i].value))
+                        }
+                        if(input[i].name == 'goodRadio'){
+                            this.goodsList.push(String(input[i].value))
+                        }
+                    }
+                }
+            }else{
+                //全不选取消checked，清空列表
+                for(var i = 0;i<input.length;i++){
+                    input[i].checked = false;
+                    this.shopList = [];
+                    this.goodsList = [];
+                }
+            }
+            //计算总价和数量
+            this.caculate();
+        },
+        caculate(){
+           var input = document.getElementsByTagName('input');
+            var newArr = []; 
+            for(var i = 0;i<input.length;i++){
+                if(input[i].name == 'goodRadio' && input[i].checked){
+                    var num = input[i].parentNode.parentNode.children[2].children[2].children[2].innerHTML;
+                    newArr.push(
+                        {
+                            'price': input[i].getAttribute('price'),
+                            'num': num
+                        }
+                    )
+                }
+            }
+            this.totalNumber = newArr.length;
+            //归零
+            this.sumPrice = 0;
+            for(var j = 0,len = newArr.length;j<len;j++){
+                this.sumPrice += newArr[j].price * newArr[j].num;
+            }
+        },
+        //数量减小
+        numDecrease(num){
+            //减小的前提为input是否被选中
+            var spanList = event.currentTarget.parentNode.children;
+            for(var i = 0,len = spanList.length;i<len;i++){
+                if(spanList[i].getAttribute("class") == 'cacul'){
+                    spanList[i].style.display = 'block';
+                    var caculNum = spanList[i].innerHTML;
+                    if(caculNum < 2){
+                        alert('宝贝不能再少了哦');
+                    }else{
+                        caculNum --
+                        spanList[i].innerHTML = caculNum;
+                    }
+                }
+            }
+            if(event.currentTarget.parentNode.parentNode.parentNode.children[0].children[0].checked){
+                this.caculate();
+            }
+        },
+        //数量增加
+        numAdd(num){
+           var spanList = event.currentTarget.parentNode.children;
+            for(var i = 0,len = spanList.length;i<len;i++){
+                if(spanList[i].getAttribute("class") == 'cacul'){
+                    spanList[i].style.display = 'block';
+                    var caculNum = spanList[i].innerHTML;
+                    caculNum ++;
+                    spanList[i].innerHTML = caculNum;
+                }
+            }
+            if(event.currentTarget.parentNode.parentNode.parentNode.children[0].children[0].checked){
+                this.caculate();
+            }
+        },
+        //结算
+        cauSum(){
+           if(this.sumPrice === 0){
+                alert('您还没有选择宝贝哦')
+            }else{
+                alert('正在前往结算')
+            }
         }
     }
 }
@@ -189,21 +315,32 @@ export default {
     cursor: pointer;
   }
   .list-item{
+    position: relative;
+    display: block;
   }
   .shop-name{
-    height: 5%;
+    position: relative;
+    height: 40px;
     width: 99.8%;
     border: #d1cfd3 solid 1px;
+    color: gray;
   }
   .shop-name div{
     display: inline-block;
+    left: 30px;
+  }
+  .shop-title{
+    position: absolute;
+    display: inline-block;
+    left: 0px;
   }
   .disN{
     float: left;
     margin-top: 8px;
   }
   .good-list{
-    height: 20%;
+    position: relative;
+    height: 90px;
     width: 99.9%;
     border: #d1cfd3 solid 1px;
     background-color: #e7e5e9;
@@ -213,9 +350,85 @@ export default {
   }
   .middle p{
     display: inline-block;
+    margin-left: 10px
+  }
+  .middle{
+    position: absolute;
+    display: inline-block;
+    left:30px;
+  }
+  #good-pic{
+    position: absolute;
+    top: 10px
+  }
+  .good-name{
+    position: absolute;
+    left:130px;
+    width: 50px;
+    margin-top: 35px;
+  }
+  .good-type{
+    position: absolute;
+    left:230px;
+    width: 100px;
+    height:30px;
+    margin-top: 30px;
+    font-size: .8em;
+    color: gray;
+    background-color:white;
+    border-radius: 2px;
+  }
+  #tab{
+    position: absolute;
+    left: 380px;
+    width: 50px;
+    margin-top: 15px;
+  }
+  .right{
+    position: absolute;
+    right: 50px;
+    top: 12px;
   }
   .right p{
     display: inline-block;
+    margin-right: 30px;
+  }
+  .price{
+    color: #e9691b;
+    font-size: 1.2em;
+  }
+  .num{
+    background-color: white;
+    width: 40px;
+    height:20px;
+    border-radius: 3px;
+    color: gray;
+    font-size: .9em;
+  }
+  .caculate{
+    background-color: white;
+    width:80px;
+    height:25px;
+    border: solid 1px rgb(184, 184, 184);
+  }
+  .mark{
+    position: absolute;
+    width:25px; 
+    font-size: 1.2em;
+    color:gray;
+    border: solid 1px rgb(184, 184, 184);
+  }
+  .mark:hover{
+    cursor: pointer;
+    background-color:#e7e5e9;
+  }
+  #decrease{
+    position: absolute;
+    right: 83px;
+  }
+  #add{
+    position: absolute;
+    right: 31px;
   }
   .gotopay{
     position: absolute;
@@ -231,7 +444,32 @@ export default {
     height: 7%;
     border: #d1cfd3 solid 1px;
   }
-  .price{
-    color: #e9691b;
-  }
+   .select-all{
+     position: absolute;
+     left: 25px;
+     top: 5px;
+     color: gray;
+   }
+   .pay{
+     position:absolute;
+     right: 120px;
+     top:10px;
+   }
+   .sum{
+     font-size: 1.2em;
+     color: #e9691b
+   }
+   .delet{
+     position: absolute;
+     right: 0;
+     background-color: #e9691b;
+     color:white;
+     top:0;
+     height:100%;
+     width:100px;
+     line-height: 42px;
+   }
+   .delet:hover{
+     cursor: pointer;
+   }
 </style>
