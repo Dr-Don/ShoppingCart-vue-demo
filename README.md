@@ -3,6 +3,8 @@
 > vue购物车demo
 > 参考https://www.cnblogs.com/woshidouzia/p/9284200.html
 
+界面（demo.png）的确有点简陋。。。
+
 ## Build Setup
 
 ``` bash
