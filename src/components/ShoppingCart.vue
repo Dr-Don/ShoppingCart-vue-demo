@@ -35,9 +35,10 @@
               <input type="checkbox"
                      name="goodRadio"
                      :price="goods.price"
-                     :num="goods.number" :dataId="item.shopId"
+                     :num="goods.number"
+                     :dataId="item.shopId"
                      :value="goods.detailId"
-                     @click="goodsCheck($event,item.detailLists,cartShops,item.productShopId)"
+                     @click="goodsCheck($event,item.detailLists,cartShops,item.shopId)"
                      class="disN">
               <b></b>
             </label>
@@ -55,9 +56,9 @@
               <p class="price"><b>￥{{goods.price}}</b></p>
               <p class="num">X{{goods.number}}</p>
               <p class="caculate">
-                <span class="mark" @click="numDecrease(goods.number)" id="decrease">-</span>
-                <span class="beeforCacul">{{goods.number}}</span>
-                <span class="mark" @click="numAdd(goods.number)" id="add">+</span>
+                <span class="mark" @click="numDecrease($event,goods.number)" id="decrease">-</span>
+                <span class="cacul">{{goods.number}}</span>
+                <span class="mark" @click="numAdd($event,goods.number)" id="add">+</span>
               </p>
             </div>
           </div>
@@ -91,41 +92,41 @@ export default {
     return {
         cartStatus:'account',  //购物车状态，account结算，edit删除编辑状态
         cartShops: [
-            {shopId:0,shopName:"店铺1",detailLists:[
-                    {goodsIndex:0,price:20,number:1,detailId:0,name:"商品1",type:"颜色分类：黑"},
-                    {goodsIndex:1,price:30,number:2,detailId:1,name:"商品2",type:"颜色分类：黑"},
+            {shopId:1111,shopName:"店铺1",detailLists:[
+                    {goodsIndex:0,price:20,number:1,detailId:10,name:"商品1",type:"颜色分类：黑"},
+                    {goodsIndex:1,price:30,number:2,detailId:11,name:"商品2",type:"颜色分类：黑"},
                 ]},
-            {shopId:1,shopName:"店铺2",detailLists:[
-                    {goodsIndex:0,price:20,number:1,detailId:0,name:"商品1",type:"颜色分类：黑"}
+            {shopId:2222,shopName:"店铺2",detailLists:[
+                    {goodsIndex:0,price:20,number:1,detailId:12,name:"商品1",type:"颜色分类：黑"}
                 ]},
         ],  //店铺列表
         sumPrice:0,  //合计金额
         totalNumber: 0, //总数
         shopList:[],  //店铺列表
         goodsList:[],  //商品列表
-    }
+    };
   },
     methods:{
         //商品选择
         goodsCheck(event,goodsList,shopList,shopId){
-          var input = document.getElementsByTagName('input')
+          var input = document.getElementsByTagName('input');
           if(event.currentTarget.checked){
-            this.goodsList.push(String(event.currentTarget.value))
+            this.goodsList.push(String(event.currentTarget.value));
             //商品全选，店铺选中
-            var newArr = this.goodsList
-            var tt = goodsList.every(function(itemValue){
+            var newArr = this.goodsList;
+            var tt = goodsList.every(itemValue=>{
               return (newArr.indexOf(String(itemValue.detailId)))
-            })
+            });
             if(tt){
               for(var i=0;i<input.length;i++){
-                if(input[i].value == shopId){
+                if(input[i].value === shopId){
                   input[i].checked = true
                 }
               }
-              this.shopList.push(String(shopId))
-              if(this.shopList,length === shopList.length){
+              this.shopList.push(String(shopId));
+              if(this.shopList.length === shopList.length){
                 for(var i=0;i<input.length;i++){
-                  if(input[i].name == 'allRadio'){
+                  if(input[i].name === 'allRadio'){
                     input[i].checked = true
                   }
                 }
@@ -133,15 +134,15 @@ export default {
             }
           }
           else{
-            this.goodsList.splice(this.goodsList.indexOf(event.currentTarget.value),1)
+            this.goodsList.splice(this.goodsList.indexOf(event.currentTarget.value),1);
             for(var i=0;i<input.length;i++){
-              if(input[i].value == shopId){
+              if(input[i].value === shopId){
                 if(input[i].checked){
-                  input[i].checked = false
+                  input[i].checked = false;
                   this.shopList.splice(this.shopList.indexOf(String(shopId)),1)
                 }
               }
-              if(input[i].name == 'allRadio'){
+              if(input[i].name === 'allRadio'){
                 input[i].checked = false
               }
             }
@@ -152,20 +153,23 @@ export default {
         //店铺选择
         shopCheck(event,shopList){
             //店铺选中则对应商品全选，否则全不选
-            var input = document.getElementsByTagName('input')
+            var input = document.getElementsByTagName('input');
             if(event.currentTarget.checked){
                 this.shopList.push(String(event.currentTarget.value));
                 for(var i = 0;i<input.length;i++){
-                    if(input[i].getAttribute('dataId') == event.currentTarget.value){
+                  console.log(input[i].getAttribute('dataId'))
+                  console.log(event.currentTarget.value)
+                    if(input[i].getAttribute('dataId') === event.currentTarget.value){
                         if(!input[i].checked){
-                            this.goodsList.push(String(input[i].value))
+                          input[i].checked = true;
+                          this.goodsList.push(String(input[i].value))
                         }
                     }
                 }
                 //所有店铺全选
                 if(this.shopList.length === shopList.length){
                     for(var i = 0;i<input.length;i++){
-                        if(input[i].name == 'allRadio'){
+                        if(input[i].name === 'allRadio'){
                             input[i].checked = true;
                         }
                     }
@@ -175,11 +179,11 @@ export default {
                 this.shopList.splice(this.shopList.indexOf(String(event.currentTarget.value)),1);
                 //店铺内所有商品取消checked
                 for(var i = 0;i<input.length;i++){
-                    if(input[i].getAttribute('dataId') == event.currentTarget.value){
+                    if(input[i].getAttribute('dataId') === event.currentTarget.value){
                         input[i].checked = false;
                         this.goodsList.splice(this.goodsList.indexOf(input[i].value),1);
                     }
-                    if(input[i].name == 'allRadio'){
+                    if(input[i].name === 'allRadio'){
                         input[i].checked = false;
                     }
                 }
@@ -189,16 +193,16 @@ export default {
         },
         //全选
         allCheck(event){
-          var input = document.getElementsByTagName('input')
+          var input = document.getElementsByTagName('input');
             if(event.currentTarget.checked){
                 //全选checked,所有店铺checked
                 for(var i = 0;i<input.length;i++){
                     if(!input[i].checked){
                         input[i].checked = true;
-                        if(input[i].name == 'shopRadio'){
+                        if(input[i].name === 'shopRadio'){
                             this.shopList.push(String(input[i].value))
                         }
-                        if(input[i].name == 'goodRadio'){
+                        if(input[i].name === 'goodRadio'){
                             this.goodsList.push(String(input[i].value))
                         }
                     }
@@ -218,12 +222,11 @@ export default {
            var input = document.getElementsByTagName('input');
             var newArr = []; 
             for(var i = 0;i<input.length;i++){
-                if(input[i].name == 'goodRadio' && input[i].checked){
-                    var num = input[i].parentNode.parentNode.children[2].children[2].children[2].innerHTML;
-                    newArr.push(
-                        {
-                            'price': input[i].getAttribute('price'),
-                            'num': num
+                if(input[i].name === 'goodRadio' && input[i].checked){
+                    var num = input[i].parentNode.parentNode.children[2].children[2].children[1].innerHTML;
+                    newArr.push({
+                          'price': input[i].getAttribute('price'),
+                          'num': num
                         }
                     )
                 }
@@ -231,39 +234,41 @@ export default {
             this.totalNumber = newArr.length;
             //归零
             this.sumPrice = 0;
-            for(var j = 0,len = newArr.length;j<len;j++){
+            for(var j = 0; j<newArr.length; j++){
                 this.sumPrice += newArr[j].price * newArr[j].num;
             }
         },
         //数量减小
-        numDecrease(num){
+        numDecrease(event, num){
             //减小的前提为input是否被选中
             var spanList = event.currentTarget.parentNode.children;
             for(var i = 0,len = spanList.length;i<len;i++){
-                if(spanList[i].getAttribute("class") == 'cacul'){
-                    spanList[i].style.display = 'block';
-                    var caculNum = spanList[i].innerHTML;
-                    if(caculNum < 2){
-                        alert('宝贝不能再少了哦');
-                    }else{
-                        caculNum --
-                        spanList[i].innerHTML = caculNum;
-                    }
+              if(spanList[i].getAttribute("class") === 'cacul'){
+                var caculNum = spanList[i].innerHTML;
+                if(caculNum < 2){
+                  alert('宝贝不能再少了哦');
+                }else{
+                  caculNum --;
+                  spanList[i].innerHTML = caculNum;
+                  var goodsnum = event.currentTarget.parentNode.parentNode.children[1];
+                  goodsnum.innerHTML = String("X"+caculNum)
                 }
+              }
             }
             if(event.currentTarget.parentNode.parentNode.parentNode.children[0].children[0].checked){
                 this.caculate();
             }
         },
         //数量增加
-        numAdd(num){
+        numAdd(event, num){
            var spanList = event.currentTarget.parentNode.children;
             for(var i = 0,len = spanList.length;i<len;i++){
-                if(spanList[i].getAttribute("class") == 'cacul'){
-                    spanList[i].style.display = 'block';
+                if(spanList[i].getAttribute("class") === 'cacul'){
                     var caculNum = spanList[i].innerHTML;
                     caculNum ++;
                     spanList[i].innerHTML = caculNum;
+                  var goodsnum = event.currentTarget.parentNode.parentNode.children[1];
+                  goodsnum.innerHTML = String("X"+caculNum)
                 }
             }
             if(event.currentTarget.parentNode.parentNode.parentNode.children[0].children[0].checked){
@@ -273,9 +278,9 @@ export default {
         //结算
         cauSum(){
            if(this.sumPrice === 0){
-                alert('您还没有选择宝贝哦')
+              alert('您还没有选择宝贝哦')
             }else{
-                alert('正在前往结算')
+              alert('正在前往结算')
             }
         }
     }
