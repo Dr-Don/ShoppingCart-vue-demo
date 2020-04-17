@@ -5,6 +5,8 @@
 
 界面（demo.png）的确有点简陋。。。
 
+<img src="D:\my_code\web\Vue-demo\shopping-cart-demo\demo.png" style="zoom:80%;" />
+
 ## Build Setup
 
 ``` bash
